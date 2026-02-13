@@ -1,140 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotel Booking</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
-    margin:0;
-    padding:20px;
-}
-.container {
-    max-width:600px;
-    margin:auto;
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-h1 {
-    text-align:center;
-}
-input, select, button {
-    width:100%;
-    padding:10px;
-    margin-top:8px;
-    margin-bottom:15px;
-    border-radius:6px;
-    border:1px solid #ccc;
-}
-button {
-    background:#007bff;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-}
-button:hover {
-    background:#0056b3;
-}
-.result {
-    text-align:center;
-    font-weight:bold;
-    margin-top:10px;
-}
-.available { color:green; }
-.notavailable { color:red; }
-</style>
-</head>
-<body>
-
-<div class="container">
-<h1>Hotel Reservation</h1>
-
-<label>Guest Name</label>
-<input type="text" id="guestName">
-
-<label>Phone</label>
-<input type="text" id="phone">
-
-<label>Room Type</label>
-<select id="roomType">
-<option>Bungalow Room</option>
-<option>Superior Room</option>
-</select>
-
-<label>Check In</label>
-<input type="date" id="checkIn">
-
-<label>Check Out</label>
-<input type="date" id="checkOut">
-
-<button onclick="checkAvailability()">Check Availability</button>
-<div id="availabilityResult" class="result"></div>
-
-<button onclick="confirmBooking()">Confirm Booking</button>
-</div>
-
 <script>
-const bookedRanges = [
-    { from: new Date('2026-02-18'), to: new Date('2026-02-20') },
-    { from: new Date('2026-02-25'), to: new Date('2026-02-27') }
-];
-
-function isDateBooked(checkIn, checkOut) {
-    return bookedRanges.some(range => {
-        return (checkIn <= range.to && checkOut >= range.from);
-    });
-}
-
-function checkAvailability() {
-    const checkInValue = document.getElementById("checkIn").value;
-    const checkOutValue = document.getElementById("checkOut").value;
-    const result = document.getElementById("availabilityResult");
-
-    if (!checkInValue || !checkOutValue) {
-        result.innerHTML = "Please select valid dates.";
-        result.className = "result notavailable";
-        return;
-    }
-
-    const checkIn = new Date(checkInValue);
-    const checkOut = new Date(checkOutValue);
-
-    if (checkIn >= checkOut) {
-        result.innerHTML = "Check-out must be after check-in.";
-        result.className = "result notavailable";
-        return;
-    }
-
-    if (isDateBooked(checkIn, checkOut)) {
-        result.innerHTML = "Room NOT Available";
-        result.className = "result notavailable";
-    } else {
-        result.innerHTML = "Room Available";
-        result.className = "result available";
-    }
-}
+const scriptURL = "https://script.google.com/macros/s/AKfycbzgWCFkfLYUQwY2fctT2pUFo_wmuuQGemXmPY7yodY5Xps1u9HOT1KZpNn8r0CCqRU/exec";
 
 function confirmBooking() {
     const name = document.getElementById("guestName").value;
-    const availabilityText = document.getElementById("availabilityResult").innerText;
+    const phone = document.getElementById("phone").value;
+    const roomType = document.getElementById("roomType").value;
+    const checkIn = document.getElementById("checkIn").value;
+    const checkOut = document.getElementById("checkOut").value;
 
-    if (!name) {
-        alert("Please enter guest name");
+    if (!name || !checkIn || !checkOut) {
+        alert("Please complete booking form");
         return;
     }
 
-    if (availabilityText !== "Room Available") {
-        alert("Room not available or not checked yet.");
-        return;
-    }
-
-    alert("Booking Confirmed for " + name);
+    fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({
+            guestName: name,
+            phone: phone,
+            roomType: roomType,
+            checkIn: checkIn,
+            checkOut: checkOut
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Booking Saved Successfully!");
+    })
+    .catch(error => {
+        alert("Error submitting booking");
+    });
 }
 </script>
-
-</body>
-</html>
